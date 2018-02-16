@@ -62,4 +62,4 @@ systemctl start tomcat
 
 echo "Installation complete."
 echo "Tomcat installed to /tomcat7"
-echo "Demo running as $user at http://localhost:8080/demo"
+echo "Demo running as tomcat at http://localhost:8080/demo"
