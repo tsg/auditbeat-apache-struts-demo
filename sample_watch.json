@@ -1,0 +1,64 @@
+{
+  "trigger": {
+    "schedule": {
+      "interval": "15s"
+    }
+  },
+  "input": {
+    "search": {
+      "request": {
+        "search_type": "query_then_fetch",
+        "indices": [
+          "auditbeat-*"
+        ],
+        "types": [],
+        "body": {
+          "size": 0,
+          "query": {
+            "bool": {
+              "must": [
+                {
+                  "match_phrase": {
+                    "event.action": {
+                      "query": "executed"
+                    }
+                  }
+                },
+                {
+                  "match_phrase": {
+                    "auditd.summary.actor.secondary": {
+                      "query": "tomcat"
+                    }
+                  }
+                },
+                {
+                  "range": {
+                    "@timestamp": {
+                      "from": "{{ctx.trigger.scheduled_time}}||-5m",
+                      "to": "{{ctx.trigger.triggered_time}}"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "condition": {
+    "compare": {
+      "ctx.payload.hits.total": {
+        "gte": 1
+      }
+    }
+  },
+  "actions": {
+    "my-logging-action": {
+      "logging": {
+        "level": "info",
+        "text": "There are {{ctx.payload.hits.total}} commands executed by the Tomcat user."
+      }
+    }
+  }
+}
